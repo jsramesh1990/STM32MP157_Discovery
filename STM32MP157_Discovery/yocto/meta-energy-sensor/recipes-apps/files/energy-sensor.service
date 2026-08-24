@@ -1,0 +1,12 @@
+[Unit]
+Description=STM32MP157 Energy Sensor Service
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/energy-sensor
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
