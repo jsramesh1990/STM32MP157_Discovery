@@ -1,459 +1,2475 @@
-#  Systems Stack: C, C++, Embedded
 
-## *From Source Code to Silicon - A Complete Learning Repository*
+# STM32MP157 Energy-Harvesting Sensor Platform
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![C](https://img.shields.io/badge/C-11+-00599C?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C11_(C_standard_revision))
-[![C++](https://img.shields.io/badge/C++-17-00599C?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/17)
-[![Embedded](https://img.shields.io/badge/Embedded-ARM%2C%20AVR-red)](https://github.com/yourname/Systems_Stack_C-CPP-Embedded)
-[![Makefile](https://img.shields.io/badge/Makefile-Supported-green)](https://www.gnu.org/software/make/)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL-blue)]()
+[![Platform](https://img.shields.io/badge/Platform-STM32MP157-blue)](https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html)
+[![Board](https://img.shields.io/badge/Board-STM32MP157%20Discovery-green)](https://www.st.com/en/evaluation-tools/stm32mp157c-dk2.html)
+[![CPU](https://img.shields.io/badge/CPU-Cortex--A7%20%2B%20Cortex--M4-orange)](https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html)
+[![OS](https://img.shields.io/badge/OS-Linux-yellow)](https://www.kernel.org/)
+[![Yocto](https://img.shields.io/badge/Build-Yocto-purple)](https://www.yoctoproject.org/)
+[![Language](https://img.shields.io/badge/Language-C%20%2F%20Shell%20%2F%20Python-lightgrey)](https://www.c-language.org/)
+[![License](https://img.shields.io/badge/License-CLOSED-red)](#license)
 
----
-
-##  About This Repository
-
-This repository provides a **complete, hands-on learning experience** for systems programming covering:
-
-| Layer | Topics |
-|-------|--------|
-| **C Language** | Pointers, Memory Management, Bitwise Operations, Preprocessor |
-| **C++ Language** | Move Semantics, Smart Pointers, Templates, Lambdas |
-| **Embedded Systems** | Interrupts, GPIO, Timers, Communication (UART/SPI/I2C) |
-| **Exercises** | 4 Practical Challenges with Solutions |
-
-Each topic includes:
-- ✅ **Detailed README** with theory, syntax, diagrams
-- ✅ **Working Code** ready to compile and run
-- ✅ **Interactive Makefile** for easy navigation
-- ✅ **Exercises** to test your understanding
+A low-power industrial sensor platform based on the **STM32MP157** MPU, combining Cortex-A7 Linux processing, Cortex-M4 real-time control, sensor management, RPMsg communication, low-power operation, and solar/thermal/kinetic energy-harvesting concepts.
 
 ---
 
-##  Systems Stack - Visual Representation
+## Project Overview
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         APPLICATION LAYER                           │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │                      C++ LANGUAGE                            │   │
-│   │   Move Semantics │ Smart Pointers │ Templates │ Lambdas      │   │
-│   └─────────────────────────────────────────────────────────────┘   │
-│                                    │                                 │
-│                                    ▼                                 │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │                       C LANGUAGE                            │   │
-│   │   Pointers │ Memory │ Bitwise │ Preprocessor                │   │
-│   └─────────────────────────────────────────────────────────────┘   │
-│                                    │                                 │
-│                                    ▼                                 │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │                    EMBEDDED BAREMETAL                        │   │
-│   │   Interrupts │ GPIO │ Timers │ UART/SPI/I2C                 │   │
-│   └─────────────────────────────────────────────────────────────┘   │
-│                                    │                                 │
-│                                    ▼                                 │
-│   ┌─────────────────────────────────────────────────────────────┐   │
-│   │                         HARDWARE                             │   │
-│   │              ARM Cortex-M / AVR / RISC-V                     │   │
-│   └─────────────────────────────────────────────────────────────┘   │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
+This project demonstrates how an STM32MP157-based embedded platform can be designed for energy-constrained industrial sensing applications.
+
+The main objective is to combine:
+
+- Energy harvesting
+- Low-power system operation
+- Cortex-A7 Linux processing
+- Cortex-M4 real-time sensor control
+- Temperature sensing
+- Pressure sensing
+- Vibration sensing
+- RPMsg communication
+- Linux power management
+- RTC/GPIO wake-up
+- Device Tree configuration
+- Yocto/OpenEmbedded integration
+- Automated testing
+- Power measurement
+- Serial monitoring
+- Log collection and analysis
+
+The STM32MP157 Discovery Kit is used as the development and demonstration platform.
+
+> **Important:** The STM32MP157 Discovery Kit itself is not a sub-1 µA complete system. The STM32MP157 silicon supports very-low-power modes under specified conditions, while achieving an ultra-low-power system-level product requires a dedicated hardware design with optimized power rails, leakage, peripherals, sensors, and energy-harvesting circuitry.
+
+---
+
+# System Concept
+
+```text
+                    ENERGY SOURCE
+                         │
+              ┌──────────┼──────────┐
+              │          │          │
+             Solar     Thermal    Kinetic
+              │          │          │
+              └──────────┼──────────┘
+                         │
+                         ▼
+              Energy Harvesting PMIC
+                         │
+                         ▼
+                 Storage Element
+              Supercapacitor / Battery
+                         │
+                         ▼
+                 Power Management
+                         │
+                         ▼
+                 ┌───────────────┐
+                 │  STM32MP157   │
+                 │               │
+                 │ Cortex-A7     │
+                 │ Cortex-M4     │
+                 └───────┬───────┘
+                         │
+             ┌───────────┼───────────┐
+             │           │           │
+             ▼           ▼           ▼
+          Sensors      RPMsg       Linux
+             │           │           │
+             │           │           ▼
+             │           │       Applications
+             │           │           │
+             │           ▼           │
+             │      Cortex-M4       │
+             │                      │
+             └──────────┬───────────┘
+                        │
+                        ▼
+                  Data Processing
+                        │
+                        ▼
+                  Communication
+                        │
+                        ▼
+                    Gateway
+                        │
+                        ▼
+                       Cloud
+````
+
+---
+
+# Main Design Principle
+
+The system should not keep the complete Linux subsystem running continuously when the application does not require it.
+
+Instead, the architecture uses **duty cycling**.
+
+```text
+                  ┌───────────────┐
+                  │ LOW POWER     │
+                  └───────┬───────┘
+                          │
+                          │ RTC / GPIO /
+                          │ sensor event
+                          ▼
+                  ┌───────────────┐
+                  │ WAKE SYSTEM   │
+                  └───────┬───────┘
+                          │
+                          ▼
+                  ┌───────────────┐
+                  │ Cortex-M4     │
+                  │ Sensor Read   │
+                  └───────┬───────┘
+                          │
+                          ▼
+                  ┌───────────────┐
+                  │ Filter /      │
+                  │ Process       │
+                  └───────┬───────┘
+                          │
+                       Event?
+                      /       \
+                    No         Yes
+                    │           │
+                    │           ▼
+                    │      Wake Cortex-A7
+                    │           │
+                    │           ▼
+                    │        Linux
+                    │           │
+                    │           ▼
+                    │      Advanced
+                    │      Processing
+                    │           │
+                    │           ▼
+                    │       Transmit
+                    │
+                    ▼
+                  Sleep
 ```
 
 ---
 
-##  Project Structure
+# Architecture
 
-```
-Systems_Stack_C-CPP-Embedded/
-│
-├── README.md                          # This file
-├── Makefile                           # Interactive menu system
-├── LICENSE                            # MIT License
-│
-├── 01-c-language/
-│   ├── pointers/
-│   │   ├── README.md                  # Theory + diagrams + syntax
-│   │   └── pointer_arithmetic.c       # Working code
-│   ├── memory/
-│   │   ├── README.md
-│   │   └── memory.c
-│   ├── bitwise/
-│   │   ├── README.md
-│   │   └── bitwise.c
-│   └── preprocessor/
-│       ├── README.md
-│       └── preprocessor.c
-│
-├── 02-cpp-language/
-│   ├── move-semantics/
-│   │   ├── README.md
-│   │   └── move_semantics.cpp
-│   ├── smart-pointers/
-│   │   ├── README.md
-│   │   └── smart_pointers.cpp
-│   ├── templates/
-│   │   ├── README.md
-│   │   └── templates.cpp
-│   └── lambdas/
-│       ├── README.md
-│       └── lambdas.cpp
-│
-├── 03-embedded-baremetal/
-│   ├── interrupts/
-│   │   ├── README.md
-│   │   └── interrupts.c
-│   ├── gpio/
-│   │   ├── README.md
-│   │   └── gpio.c
-│   ├── timers/
-│   │   ├── README.md
-│   │   └── timers.c
-│   └── communication/
-│       ├── README.md
-│       └── communication.c
-│
-├── exercises/
-│   ├── challenges/
-│   │   └── README.md                  # Challenge descriptions
-│   └── solutions/
-│       ├── solution_01_pointers.c
-│       ├── solution_02_bitwise.c
-│       ├── solution_03_move_semantics.cpp
-│       └── solution_04_gpio.c
-│
-└── bin/                               # Compiled binaries (auto-created)
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                    STM32MP157 PLATFORM                       │
+│                                                              │
+│  ┌──────────────────────┐      ┌──────────────────────────┐ │
+│  │      Cortex-A7       │      │       Cortex-M4          │ │
+│  │                      │      │                          │ │
+│  │ Linux / Applications │      │ Sensor Control           │ │
+│  │ Services             │      │ Real-Time Processing     │ │
+│  │ RPMsg Endpoint       │◄────►│ RPMsg Endpoint            │ │
+│  │ Power Management     │      │ Low-Power Tasks           │ │
+│  └───────────┬──────────┘      └────────────┬─────────────┘ │
+│              │                              │               │
+│              ▼                              ▼               │
+│       Linux Drivers                    HAL / Drivers        │
+│              │                              │               │
+└──────────────┼──────────────────────────────┼───────────────┘
+               │                              │
+               ▼                              ▼
+          Device Tree                    Sensor Interfaces
+                                              │
+                                ┌─────────────┼─────────────┐
+                                ▼             ▼             ▼
+                           Temperature    Pressure      Vibration
 ```
 
 ---
 
-##  Quick Start
+# Cortex-A7 Role
 
-### Prerequisites
+The Cortex-A7 subsystem runs Linux and performs high-level operations.
 
-| Tool | Version | Check Command |
-|------|---------|---------------|
-| GCC | 4.8+ | `gcc --version` |
-| G++ | 4.8+ | `g++ --version` |
-| Make | 3.8+ | `make --version` |
+Responsibilities:
 
-### Installation
+* Linux kernel
+* Device Tree
+* Sensor management
+* Power management
+* RPMsg endpoint
+* Data processing
+* Logging
+* Communication
+* System services
+* Application execution
+* Cloud/gateway communication
+
+---
+
+# Cortex-M4 Role
+
+The Cortex-M4 is used for low-latency and low-power tasks.
+
+Responsibilities:
+
+* Sensor acquisition
+* Sensor timing
+* GPIO control
+* Low-level processing
+* Sensor event detection
+* Power-aware operation
+* RPMsg communication
+* Wake-up/event handling
+
+The basic philosophy is:
+
+```text
+Cortex-M4
+   ↓
+Low-power continuous monitoring
+
+Cortex-A7
+   ↓
+High-level processing when required
+```
+
+---
+
+# Sensor Architecture
+
+The project supports three sensor categories:
+
+```text
+hardware/sensors/
+│
+├── pressure/
+│
+├── temperature/
+│
+└── vibration/
+```
+
+Sensor flow:
+
+```text
+Sensor
+  │
+  ▼
+Physical Measurement
+  │
+  ▼
+Sensor Interface
+  │
+  ├── I2C
+  ├── SPI
+  └── GPIO / Interrupt
+  │
+  ▼
+Cortex-M4
+  │
+  ▼
+Filtering / Validation
+  │
+  ▼
+RPMsg
+  │
+  ▼
+Linux
+  │
+  ▼
+Sensor Manager
+  │
+  ▼
+Sensor Monitor
+```
+
+---
+
+# Temperature Sensor Flow
+
+```text
+Temperature
+     │
+     ▼
+Temperature Sensor
+     │
+     ▼
+I2C / SPI
+     │
+     ▼
+Cortex-M4
+     │
+     ▼
+Read Register
+     │
+     ▼
+Convert Raw Data
+     │
+     ▼
+Temperature Value
+     │
+     ▼
+RPMsg
+     │
+     ▼
+Linux
+```
+
+---
+
+# Pressure Sensor Flow
+
+```text
+Pressure
+   │
+   ▼
+Pressure Sensor
+   │
+   ▼
+I2C / SPI
+   │
+   ▼
+Cortex-M4
+   │
+   ▼
+Raw Pressure Data
+   │
+   ▼
+Calibration
+   │
+   ▼
+Pressure Value
+   │
+   ▼
+RPMsg
+   │
+   ▼
+Linux
+```
+
+---
+
+# Vibration Sensor Flow
+
+```text
+Mechanical Vibration
+        │
+        ▼
+Vibration Sensor
+        │
+        ▼
+Accelerometer / Vibration IC
+        │
+        ▼
+SPI / I2C
+        │
+        ▼
+Cortex-M4
+        │
+        ▼
+Sampling
+        │
+        ▼
+Filtering
+        │
+        ▼
+RMS / Threshold
+        │
+        ▼
+Event Detection
+        │
+        ▼
+Wake Cortex-A7
+```
+
+---
+
+# RPMsg Architecture
+
+RPMsg is used for communication between the Cortex-A7 Linux subsystem and Cortex-M4 firmware.
+
+```text
+                 Cortex-A7
+                    │
+                    │
+                 Linux
+                    │
+                    ▼
+              RPMsg Driver
+                    │
+                    ▼
+             VirtIO / RPMsg
+                    │
+              Shared Memory
+                    │
+                    ▼
+              RPMsg Endpoint
+                    │
+                    ▼
+                 Cortex-M4
+                    │
+                    ▼
+              Sensor Manager
+```
+
+Example message:
+
+```text
+A7 → M4
+
+{
+    command: READ_SENSOR,
+    sensor: TEMPERATURE
+}
+```
+
+Response:
+
+```text
+M4 → A7
+
+{
+    sensor: TEMPERATURE,
+    value: 31.5,
+    unit: C,
+    status: OK
+}
+```
+
+---
+
+# RPMsg Communication Flow
+
+```text
+Linux Application
+       │
+       ▼
+sensor-manager
+       │
+       ▼
+rpmsg-test / RPMsg API
+       │
+       ▼
+Linux RPMsg Driver
+       │
+       ▼
+Remote Processor Framework
+       │
+       ▼
+Shared Memory / VirtIO
+       │
+       ▼
+Cortex-M4 RPMsg
+       │
+       ▼
+M4 Application
+       │
+       ▼
+Sensor
+```
+
+---
+
+# Power Architecture
+
+```text
+Energy Source
+     │
+     ▼
+Energy Harvester
+     │
+     ▼
+Energy Harvesting PMIC
+     │
+     ▼
+Storage
+     │
+     ▼
+Regulator
+     │
+     ▼
+STM32MP157 Power Rails
+     │
+     ├── Cortex-A7
+     ├── Cortex-M4
+     ├── DDR
+     ├── Sensors
+     └── Communication
+```
+
+---
+
+# Solar Energy Flow
+
+```text
+Sunlight
+   │
+   ▼
+Solar Panel
+   │
+   ▼
+PV Energy Harvester
+   │
+   ▼
+Energy Storage
+   │
+   ▼
+Power Management
+   │
+   ▼
+STM32MP157
+```
+
+See:
+
+```text
+hardware/energy-harvesting/solar.md
+```
+
+---
+
+# Thermal Energy Flow
+
+```text
+Temperature Difference
+        │
+        ▼
+Thermoelectric Generator
+        │
+        ▼
+Energy Harvester
+        │
+        ▼
+Storage
+        │
+        ▼
+Power Management
+        │
+        ▼
+STM32MP157
+```
+
+See:
+
+```text
+hardware/energy-harvesting/thermal.md
+```
+
+---
+
+# Kinetic Energy Flow
+
+```text
+Mechanical Motion
+       │
+       ▼
+Piezoelectric /
+Electromagnetic Generator
+       │
+       ▼
+Rectifier
+       │
+       ▼
+Energy Harvester
+       │
+       ▼
+Storage
+       │
+       ▼
+STM32MP157
+```
+
+See:
+
+```text
+hardware/energy-harvesting/kinetic.md
+```
+
+---
+
+# Power-State Flow
+
+The system uses multiple power states depending on the required response time and power budget.
+
+```text
+                   RUN
+                    │
+                    ▼
+                  SLEEP
+                    │
+                    ▼
+                  STOP
+                    │
+                    ▼
+                LP-STOP
+                    │
+                    ▼
+               LPLV-STOP
+                    │
+                    ▼
+                STANDBY
+```
+
+Wake-up:
+
+```text
+STANDBY
+   │
+   ├── RTC
+   │
+   ├── GPIO
+   │
+   └── External event
+   │
+   ▼
+WAKE
+   │
+   ▼
+INITIALIZATION
+   │
+   ▼
+SENSOR PROCESSING
+```
+
+---
+
+# Low-Power Strategy
+
+The project uses:
+
+```text
+1. Duty cycling
+2. Sensor power gating
+3. Cortex-A7 sleep
+4. Cortex-M4 low-power processing
+5. Peripheral shutdown
+6. Dynamic wake-up
+7. Event-driven processing
+8. Data batching
+9. Communication batching
+10. Energy-aware operation
+```
+
+The goal is to minimize:
+
+```text
+Average Power
+```
+
+rather than simply minimizing instantaneous peak power.
+
+---
+
+# Energy Budget
+
+The system should satisfy:
+
+```text
+Energy harvested
+        >
+Energy consumed
+```
+
+A simplified model:
+
+```text
+E_total =
+    E_sleep
+  + E_sensor
+  + E_processing
+  + E_communication
+  + E_wakeup
+```
+
+Average power:
+
+```text
+P_average = E_total / Time
+```
+
+For an energy-harvesting system:
+
+```text
+P_harvested >= P_average
+```
+
+A practical design must also account for:
+
+* Storage capacity
+* Conversion losses
+* Leakage
+* Sensor startup energy
+* Radio startup energy
+* Peak current
+* Environmental availability
+* Temperature
+* Harvester efficiency
+
+---
+
+# Wake-Up Architecture
+
+```text
+                    LOW POWER
+                        │
+           ┌────────────┼────────────┐
+           │            │            │
+           ▼            ▼            ▼
+          RTC          GPIO       Sensor IRQ
+           │            │            │
+           └────────────┼────────────┘
+                        ▼
+                     WAKE-UP
+                        │
+                        ▼
+                  Cortex-M4/A7
+                        │
+                        ▼
+                  Process Event
+```
+
+---
+
+# Sensor Event Wake-Up
+
+```text
+Vibration detected
+       │
+       ▼
+Sensor interrupt
+       │
+       ▼
+GPIO wake-up
+       │
+       ▼
+Cortex-M4
+       │
+       ▼
+Validate event
+       │
+       ▼
+Significant?
+     /     \
+   No       Yes
+   │         │
+   ▼         ▼
+ Sleep     Wake A7
+             │
+             ▼
+          Linux
+             │
+             ▼
+         Log / Send
+```
+
+---
+
+# Linux Architecture
+
+```text
+┌────────────────────────────────────────────┐
+│              User Applications             │
+│                                            │
+│ power-manager                              │
+│ sensor-manager                             │
+│ sensor-monitor                             │
+│ rpmsg-test                                 │
+└──────────────────┬─────────────────────────┘
+                   │
+┌──────────────────▼─────────────────────────┐
+│                 Services                   │
+│                                            │
+│ power-service                              │
+│ sensor-service                             │
+└──────────────────┬─────────────────────────┘
+                   │
+┌──────────────────▼─────────────────────────┐
+│              Linux Kernel                  │
+│                                            │
+│ Device Tree                                │
+│ I2C / SPI / GPIO                           │
+│ RemoteProc                                 │
+│ RPMsg                                      │
+│ Power Management                           │
+│ RTC / Wake-up                              │
+└──────────────────┬─────────────────────────┘
+                   │
+                   ▼
+              STM32MP157 HW
+```
+
+---
+
+# Linux Applications
+
+```text
+linux/apps/
+│
+├── power-manager/
+│
+├── rpmsg-test/
+│
+├── sensor-manager/
+│
+└── sensor-monitor/
+```
+
+### power-manager
+
+Controls and monitors system power behavior.
+
+### rpmsg-test
+
+Validates Cortex-A7 ↔ Cortex-M4 communication.
+
+### sensor-manager
+
+Coordinates sensor acquisition.
+
+### sensor-monitor
+
+Displays and monitors sensor data.
+
+---
+
+# Linux Services
+
+```text
+linux/services/
+│
+├── power-service/
+│
+└── sensor-service/
+```
+
+Services are long-running background processes managed by Linux/systemd.
+
+```text
+systemd
+  │
+  ├── power-service
+  │
+  └── sensor-service
+```
+
+---
+
+# Device Tree Flow
+
+```text
+Device Tree Source
+        │
+        ▼
+stm32mp157-energy-sensor.dts
+        │
+        ├── GPIO
+        ├── I2C
+        ├── SPI
+        ├── Sensors
+        ├── RPMsg
+        └── Power
+        │
+        ▼
+Device Tree Compiler
+        │
+        ▼
+DTB
+        │
+        ▼
+Linux Kernel
+        │
+        ▼
+Drivers
+        │
+        ▼
+Hardware
+```
+
+Device Tree files:
+
+```text
+device-tree/
+├── README.md
+├── stm32mp157-energy-sensor.dts
+├── stm32mp157-energy-sensor-overlay.dts
+└── stm32mp157-energy-sensor-pinctrl.dtsi
+```
+
+---
+
+# Cortex-M4 Firmware Flow
+
+```text
+Power ON
+   │
+   ▼
+M4 Startup
+   │
+   ▼
+HAL Initialization
+   │
+   ▼
+Clock Initialization
+   │
+   ▼
+GPIO Initialization
+   │
+   ▼
+Sensor Initialization
+   │
+   ▼
+RPMsg Initialization
+   │
+   ▼
+Application Initialization
+   │
+   ▼
+Main Loop
+   │
+   ├── Sensor Read
+   ├── Event Detection
+   ├── RPMsg
+   ├── Power Control
+   └── Low-Power Wait
+```
+
+---
+
+# Cortex-M4 Directory
+
+```text
+cortex-m4/
+├── README.md
+├── Core/
+│   ├── Inc/
+│   │   ├── main.h
+│   │   ├── app_sensor.h
+│   │   ├── app_power.h
+│   │   ├── app_rpmsg.h
+│   │   ├── sensor_manager.h
+│   │   ├── power_manager.h
+│   │   └── system_config.h
+│   │
+│   └── Src/
+│       ├── main.c
+│       ├── app_power.c
+│       ├── app_rpmsg.c
+│       ├── app_sensor.c
+│       ├── power_manager.c
+│       ├── sensor_manager.c
+│       └── system_config.c
+│
+├── Config/
+│   ├── stm32mp157xx_hal_conf.h
+│   └── stm32mp157xx_it.h
+│
+├── Drivers/
+│   ├── BSP/
+│   ├── CMSIS/
+│   └── README.md
+│
+├── Middlewares/
+│   └── OpenAMP/
+│       └── README.md
+│
+├── linker/
+│   └── STM32MP157_M4.ld
+│
+├── Makefile
+├── CMakeLists.txt
+└── README.md
+```
+
+---
+
+# Yocto Architecture
+
+```text
+                        Yocto
+                          │
+                          ▼
+                 meta-energy-sensor
+                          │
+          ┌───────────────┼────────────────┐
+          │               │                │
+          ▼               ▼                ▼
+     recipes-apps    recipes-services   recipes-firmware
+          │               │                │
+          ▼               ▼                ▼
+       Apps            Services           M4
+          │               │                │
+          └───────────────┼────────────────┘
+                          │
+                          ▼
+                    recipes-bsp
+                          │
+                          ▼
+                     Device Tree
+                          │
+                          ▼
+                   recipes-kernel
+                          │
+                          ▼
+                    Linux Kernel
+                          │
+                          ▼
+                       BitBake
+                          │
+                          ▼
+                   Bootable Image
+```
+
+---
+
+# Yocto Layer
+
+```text
+yocto/
+├── build.sh
+├── clean.sh
+├── deploy.sh
+├── flash_sd.sh
+├── setup.sh
+├── README.md
+│
+└── meta-energy-sensor/
+    │
+    ├── conf/
+    │   └── layer.conf
+    │
+    ├── recipes-apps/
+    │   ├── energy-sensor.bb
+    │   ├── files/
+    │   │   ├── energy-sensor.c
+    │   │   └── energy-sensor.service
+    │   │
+    │   ├── power-manager/
+    │   │   ├── power-manager.bb
+    │   │   └── files/
+    │   │
+    │   ├── rpmsg-test/
+    │   │   ├── rpmsg-test.bb
+    │   │   └── files/
+    │   │
+    │   ├── sensor-manager/
+    │   │   ├── sensor-manager.bb
+    │   │   └── files/
+    │   │
+    │   └── sensor-monitor/
+    │       ├── sensor-monitor.bb
+    │       └── files/
+    │
+    ├── recipes-bsp/
+    │   └── device-tree/
+    │
+    ├── recipes-firmware/
+    │   └── cortex-m4/
+    │
+    ├── recipes-kernel/
+    │   └── linux/
+    │       └── linux-stm32mp/
+    │
+    └── recipes-services/
+        ├── power-service/
+        └── sensor-service/
+```
+
+---
+
+# Yocto Build Flow
+
+```text
+Ubuntu Host
+     │
+     ▼
+Yocto Setup
+     │
+     ▼
+Initialize Build Environment
+     │
+     ▼
+Add meta-energy-sensor
+     │
+     ▼
+Configure MACHINE
+     │
+     ▼
+Configure DISTRO
+     │
+     ▼
+BitBake
+     │
+     ├───────────────┐
+     ▼               ▼
+Linux Kernel       Cortex-M4
+     │               │
+     ▼               ▼
+Device Tree        Firmware
+     │               │
+     └───────┬───────┘
+             ▼
+        Root Filesystem
+             │
+             ▼
+        Boot Components
+             │
+             ▼
+        WIC / SD Image
+             │
+             ▼
+       STM32MP157-DK
+```
+
+---
+
+# Complete Boot Flow
+
+```text
+Power ON
+   │
+   ▼
+Boot ROM
+   │
+   ▼
+TF-A / First Stage Boot
+   │
+   ▼
+DDR Initialization
+   │
+   ▼
+Trusted Firmware
+   │
+   ▼
+U-Boot
+   │
+   ▼
+Read Boot Configuration
+   │
+   ▼
+Load Kernel
+   │
+   ▼
+Load Device Tree
+   │
+   ▼
+Load Firmware / Boot Components
+   │
+   ▼
+Start Linux Kernel
+   │
+   ▼
+Kernel Initialization
+   │
+   ▼
+Device Tree Parsing
+   │
+   ▼
+Driver Initialization
+   │
+   ├── GPIO
+   ├── I2C
+   ├── SPI
+   ├── RTC
+   ├── RemoteProc
+   └── RPMsg
+   │
+   ▼
+Root Filesystem
+   │
+   ▼
+systemd
+   │
+   ├── power-service
+   └── sensor-service
+   │
+   ▼
+User Applications
+```
+
+---
+
+# Complete Sensor Data Flow
+
+```text
+Physical World
+      │
+      ▼
+Sensor
+      │
+      ▼
+I2C / SPI / GPIO
+      │
+      ▼
+Cortex-M4 Driver
+      │
+      ▼
+Sensor Manager
+      │
+      ▼
+Filtering / Calibration
+      │
+      ▼
+Event Detection
+      │
+      ▼
+RPMsg
+      │
+      ▼
+Linux RPMsg Driver
+      │
+      ▼
+Sensor Service
+      │
+      ▼
+Sensor Manager
+      │
+      ▼
+Sensor Monitor
+      │
+      ▼
+Log / Database / Network
+```
+
+---
+
+# Complete Power Management Flow
+
+```text
+Energy Available
+       │
+       ▼
+Power Management
+       │
+       ▼
+Check Energy Budget
+       │
+       ├───────────────┐
+       │               │
+       ▼               ▼
+Enough Energy      Low Energy
+       │               │
+       ▼               ▼
+Normal Operation   Low-Power Mode
+       │               │
+       ▼               ▼
+Sensor Read        M4 Monitoring
+       │               │
+       ▼               ▼
+Processing         Event Detection
+       │               │
+       └───────┬───────┘
+               ▼
+          Communication
+               │
+               ▼
+            Sleep
+```
+
+---
+
+# Complete Low-Power Flow
+
+```text
+Application Running
+        │
+        ▼
+Finish Current Work
+        │
+        ▼
+Stop Sensors
+        │
+        ▼
+Stop Unused Peripherals
+        │
+        ▼
+Flush Important Data
+        │
+        ▼
+Configure Wake Source
+        │
+        ▼
+Suspend Cortex-A7
+        │
+        ▼
+Low-Power State
+        │
+        ▼
+RTC / GPIO / Sensor IRQ
+        │
+        ▼
+Wake-up
+        │
+        ▼
+Restore State
+        │
+        ▼
+Restart Required Peripherals
+        │
+        ▼
+Read Sensor
+        │
+        ▼
+Process Event
+        │
+        ▼
+Return to Low Power
+```
+
+---
+
+# Test Architecture
+
+```text
+tests/
+│
+├── boot/
+│
+├── energy/
+│
+├── low-power/
+│
+├── rpmsg/
+│
+├── sensor/
+│
+└── wakeup/
+```
+
+Test flow:
+
+```text
+Build
+  │
+  ▼
+Deploy
+  │
+  ▼
+Boot Test
+  │
+  ▼
+Sensor Test
+  │
+  ▼
+RPMsg Test
+  │
+  ▼
+Energy Test
+  │
+  ▼
+Low-Power Test
+  │
+  ▼
+Wake-up Test
+  │
+  ▼
+Collect Logs
+  │
+  ▼
+Test Report
+```
+
+---
+
+# Test Categories
+
+## Boot
+
+Validates:
+
+* Boot sequence
+* Linux startup
+* Device Tree
+* Kernel
+* Remote processor support
+
+## Energy
+
+Validates:
+
+* Power supply
+* Voltage
+* Current
+* Energy availability
+* Energy budget
+
+## Low Power
+
+Validates:
+
+* Suspend
+* Stop
+* Low-power modes
+* Power-state transitions
+
+## RPMsg
+
+Validates:
+
+* RemoteProc
+* RPMsg
+* Cortex-A7 ↔ Cortex-M4 communication
+
+## Sensor
+
+Validates:
+
+* Temperature
+* Pressure
+* Vibration
+* Sensor interfaces
+* Sensor data path
+
+## Wakeup
+
+Validates:
+
+* RTC wake-up
+* GPIO wake-up
+* Sensor interrupt
+* Resume
+
+---
+
+# Developer Tools
+
+```text
+tools/
+│
+├── log-parser/
+│
+├── power-measurement/
+│
+└── serial-monitor/
+```
+
+The tools run primarily on the development host.
+
+```text
+STM32MP157
+    │
+    ├── UART ───────────────► serial-monitor
+    │
+    ├── Logs ───────────────► log-parser
+    │
+    └── Current Measurement ► power-measurement
+```
+
+---
+
+# Project Automation
+
+```text
+scripts/
+│
+├── build_all.sh
+├── clean_all.sh
+├── collect_logs.sh
+├── deploy_all.sh
+└── run_tests.sh
+```
+
+Complete developer workflow:
+
+```text
+./scripts/build_all.sh
+        │
+        ▼
+./scripts/deploy_all.sh
+        │
+        ▼
+STM32MP157-DK
+        │
+        ▼
+./scripts/run_tests.sh
+        │
+        ▼
+./scripts/collect_logs.sh
+```
+
+---
+
+# Hardware Documentation
+
+```text
+hardware/
+│
+├── energy-harvesting/
+│   ├── kinetic.md
+│   ├── solar.md
+│   └── thermal.md
+│
+├── sensors/
+│   ├── pressure/
+│   ├── temperature/
+│   └── vibration/
+│
+└── stm32mp157-dk/
+    ├── peripherals.md
+    ├── pinout.md
+    └── README.md
+```
+
+---
+
+# Pressure Sensor Documentation
+
+```text
+pressure/
+├── README.md
+├── interface.md
+├── hardware.md
+└── register_map.md
+```
+
+Documents:
+
+* Sensor selection
+* Electrical interface
+* I2C/SPI communication
+* Power requirements
+* Register configuration
+* Calibration
+* Data conversion
+
+---
+
+# Temperature Sensor Documentation
+
+```text
+temperature/
+├── README.md
+├── interface.md
+├── hardware.md
+└── register_map.md
+```
+
+---
+
+# Vibration Sensor Documentation
+
+```text
+vibration/
+├── README.md
+├── interface.md
+├── hardware.md
+└── register_map.md
+```
+
+---
+
+# Hardware Pin and Peripheral Flow
+
+```text
+STM32MP157
+     │
+     ├── GPIO
+     │
+     ├── I2C
+     │
+     ├── SPI
+     │
+     ├── UART
+     │
+     ├── RTC
+     │
+     ├── PWM
+     │
+     └── Interrupt
+            │
+            ▼
+         Sensors
+```
+
+---
+
+# GPIO Flow
+
+```text
+Device Tree
+    │
+    ▼
+GPIO Controller
+    │
+    ▼
+Linux / Cortex-M4
+    │
+    ▼
+GPIO Configuration
+    │
+    ▼
+Input / Output
+    │
+    ▼
+Sensor / Wake-up Signal
+```
+
+---
+
+# I2C Flow
+
+```text
+Application
+    │
+    ▼
+Sensor Manager
+    │
+    ▼
+I2C Driver
+    │
+    ▼
+I2C Controller
+    │
+    ▼
+SDA / SCL
+    │
+    ▼
+Sensor
+```
+
+---
+
+# SPI Flow
+
+```text
+Application
+    │
+    ▼
+Sensor Manager
+    │
+    ▼
+SPI Driver
+    │
+    ▼
+SPI Controller
+    │
+    ▼
+SCLK / MOSI / MISO / CS
+    │
+    ▼
+Sensor
+```
+
+---
+
+# Interrupt Flow
+
+```text
+Sensor Event
+     │
+     ▼
+GPIO / IRQ
+     │
+     ▼
+Interrupt Controller
+     │
+     ▼
+ISR
+     │
+     ▼
+Event Handler
+     │
+     ▼
+Sensor Manager
+     │
+     ▼
+RPMsg / Wake-up
+```
+
+---
+
+# Project Directory
+
+```text
+STM32MP157_Discovery/
+│
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+├── .gitignore
+├── README.md
+│
+├── cortex-m4/
+│
+├── device-tree/
+│
+├── hardware/
+│
+├── linux/
+│
+├── scripts/
+│
+├── tests/
+│
+├── tools/
+│
+└── yocto/
+```
+
+---
+
+# Complete Repository Architecture
+
+```text
+                         STM32MP157 DISCOVERY
+                                  │
+          ┌───────────────────────┼────────────────────────┐
+          │                       │                        │
+          ▼                       ▼                        ▼
+      Hardware                 Firmware                  Linux
+          │                       │                        │
+          │                   Cortex-M4              Cortex-A7
+          │                       │                        │
+          │                       │                        │
+          └───────────────────────┼────────────────────────┘
+                                  │
+                                  ▼
+                               RPMsg
+                                  │
+                                  ▼
+                           Sensor / Power
+                              Management
+                                  │
+                                  ▼
+                            Low-Power Logic
+                                  │
+                                  ▼
+                          Energy Management
+                                  │
+                                  ▼
+                         Energy Harvesting
+```
+
+---
+
+# Development Workflow
+
+```text
+1. Design hardware
+       ↓
+2. Define Device Tree
+       ↓
+3. Develop Cortex-M4 firmware
+       ↓
+4. Develop Linux applications
+       ↓
+5. Develop Linux services
+       ↓
+6. Integrate RPMsg
+       ↓
+7. Integrate Yocto
+       ↓
+8. Build image
+       ↓
+9. Flash SD card
+       ↓
+10. Boot board
+       ↓
+11. Run sensor tests
+       ↓
+12. Run RPMsg tests
+       ↓
+13. Run low-power tests
+       ↓
+14. Measure power
+       ↓
+15. Analyze logs
+       ↓
+16. Optimize
+       ↓
+17. Repeat
+```
+
+---
+
+# Debugging Flow
+
+```text
+Problem
+   │
+   ▼
+Serial Monitor
+   │
+   ▼
+Kernel Logs
+   │
+   ▼
+dmesg
+   │
+   ├── Device Tree?
+   │
+   ├── Driver?
+   │
+   ├── RemoteProc?
+   │
+   ├── RPMsg?
+   │
+   ├── Sensor?
+   │
+   └── Power?
+   │
+   ▼
+Log Parser
+   │
+   ▼
+Root Cause
+   │
+   ▼
+Fix
+   │
+   ▼
+Rebuild
+```
+
+---
+
+# Power Optimization Workflow
+
+```text
+Measure
+   │
+   ▼
+Find High-Consumption Block
+   │
+   ▼
+Classify
+   │
+   ├── CPU
+   ├── DDR
+   ├── Sensor
+   ├── Peripheral
+   ├── Radio
+   └── Leakage
+   │
+   ▼
+Optimize
+   │
+   ├── Duty Cycle
+   ├── Power Gate
+   ├── Clock Gate
+   ├── Suspend
+   └── Reduce Active Time
+   │
+   ▼
+Measure Again
+   │
+   ▼
+Compare
+   │
+   ▼
+Repeat
+```
+
+---
+
+# Energy-Harvesting Optimization
+
+```text
+Measure Harvested Energy
+          │
+          ▼
+Calculate Available Energy
+          │
+          ▼
+Calculate System Consumption
+          │
+          ▼
+       Compare
+        /     \
+       /       \
+Enough         Not Enough
+Energy         Energy
+  │               │
+  ▼               ▼
+Normal         Increase
+Operation      Sleep Time
+                  │
+                  ▼
+             Reduce Sensor
+             Activity
+                  │
+                  ▼
+             Reduce Radio
+             Activity
+                  │
+                  ▼
+             Optimize CPU
+```
+
+---
+
+# Real Product Architecture
+
+The Discovery Kit is used for development.
+
+A production design would look more like:
+
+```text
+             Solar / Thermal / Kinetic
+                       │
+                       ▼
+                Energy Harvester
+                       │
+                       ▼
+                 Storage Element
+                       │
+                       ▼
+              Ultra-Low-Power PMIC
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+             ▼                   ▼
+        STM32MP157           Sensors
+             │
+       ┌─────┴─────┐
+       │           │
+    Cortex-A7   Cortex-M4
+       │           │
+       └─────┬─────┘
+             ▼
+           RPMsg
+             │
+             ▼
+        Communication
+             │
+             ▼
+          Gateway
+```
+
+The production PCB should minimize:
+
+* PMIC leakage
+* Regulator quiescent current
+* LED consumption
+* Debug interface consumption
+* DDR consumption
+* Sensor standby current
+* Pull-up leakage
+* GPIO leakage
+* Peripheral leakage
+
+---
+
+# Current Measurement Strategy
+
+Measure different system states independently:
+
+```text
+1. Boot
+2. Linux idle
+3. Sensor active
+4. Cortex-M4 active
+5. RPMsg active
+6. Communication active
+7. Suspend
+8. Stop
+9. Standby
+10. Wake-up
+```
+
+Example table:
+
+| State         | Voltage | Current | Power |
+| ------------- | ------: | ------: | ----: |
+| Boot          |     TBD |     TBD |   TBD |
+| Linux Idle    |     TBD |     TBD |   TBD |
+| Sensor Active |     TBD |     TBD |   TBD |
+| RPMsg         |     TBD |     TBD |   TBD |
+| Suspend       |     TBD |     TBD |   TBD |
+| Standby       |     TBD |     TBD |   TBD |
+
+Replace `TBD` with actual measurements from your hardware.
+
+---
+
+# Important Power Target
+
+The project should distinguish between:
+
+```text
+SoC-level low-power specification
+```
+
+and:
+
+```text
+Complete-board/system power consumption
+```
+
+The Discovery Kit contains many components that are not required in a final ultra-low-power product.
+
+Therefore:
+
+```text
+Discovery Kit
+     │
+     └── Development / Demonstration
+
+Custom PCB
+     │
+     └── Production Ultra-Low-Power Design
+```
+
+---
+
+# Getting Started
+
+Clone the repository:
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourname/Systems_Stack_C-CPP-Embedded.git
-cd Systems_Stack_C-CPP-Embedded
+git clone <YOUR_GITHUB_REPOSITORY>
+cd STM32MP157_Discovery
+```
 
-# Build everything
-make all
+Initialize the Cortex-M4 build:
 
-# Start interactive menu
-make menu
+```bash
+cd cortex-m4
+```
+
+Build the Yocto environment:
+
+```bash
+cd ../yocto
+./setup.sh
+```
+
+Build the image:
+
+```bash
+./build.sh
+```
+
+Deploy:
+
+```bash
+./deploy.sh
+```
+
+Flash the SD card:
+
+```bash
+sudo ./flash_sd.sh <image.wic>
+```
+
+Boot the Discovery Kit.
+
+---
+
+# Testing
+
+Run the complete test suite:
+
+```bash
+./scripts/run_tests.sh
+```
+
+Or run individual tests:
+
+```bash
+./tests/boot/test_boot.sh
+
+./tests/energy/test_energy.sh
+
+./tests/low-power/test_low_power.sh
+
+./tests/rpmsg/test_rpmsg.sh
+
+./tests/sensor/test_sensor.sh
+
+./tests/wakeup/test_wakeup.sh
 ```
 
 ---
 
-##  Interactive Menu Flow
+# Serial Debugging
 
+Find the serial device:
+
+```bash
+ls /dev/ttyUSB*
 ```
-                    ┌─────────────────────────────────────┐
-                    │           MAIN MENU                  │
-                    │  1. C Language                       │
-                    │  2. C++ Language                     │
-                    │  3. Embedded Baremetal               │
-                    │  4. Exercises                        │
-                    │  5. Clean                            │
-                    │  0. Exit                             │
-                    └─────────────────────────────────────┘
+
+Run:
+
+```bash
+python3 tools/serial-monitor/serial_monitor.py \
+    /dev/ttyUSB0 \
+    115200
+```
+
+---
+
+# Log Collection
+
+On the target:
+
+```bash
+./scripts/collect_logs.sh
+```
+
+Analyze logs:
+
+```bash
+python3 tools/log-parser/log_parser.py sensor.log
+```
+
+---
+
+# Power Calculation
+
+Example:
+
+```bash
+python3 tools/power-measurement/power_measurement.py \
+    3.3 \
+    0.002
+```
+
+Power is calculated using:
+
+```text
+P = V × I
+```
+
+Energy:
+
+```text
+E = P × t
+```
+
+---
+
+# Software Stack
+
+```text
+┌─────────────────────────────┐
+│ Applications                │
+├─────────────────────────────┤
+│ Linux Services              │
+├─────────────────────────────┤
+│ Linux Kernel                │
+├─────────────────────────────┤
+│ Device Tree                 │
+├─────────────────────────────┤
+│ STM32MP1 Drivers            │
+├─────────────────────────────┤
+│ Cortex-A7 / Cortex-M4       │
+├─────────────────────────────┤
+│ STM32MP157 Hardware         │
+└─────────────────────────────┘
+```
+
+---
+
+# Technologies Used
+
+* STM32MP157
+* Cortex-A7
+* Cortex-M4
+* STM32 HAL
+* OpenAMP
+* RPMsg
+* Linux
+* Device Tree
+* Yocto/OpenEmbedded
+* systemd
+* I2C
+* SPI
+* GPIO
+* UART
+* RTC
+* RemoteProc
+* Power Management
+* Solar Energy Harvesting
+* Thermal Energy Harvesting
+* Kinetic Energy Harvesting
+* C
+* Bash
+* Python
+
+---
+
+# Project Goals
+
+The project demonstrates:
+
+* Embedded Linux development
+* Cortex-M4 firmware development
+* Linux/M4 communication
+* Sensor integration
+* Device Tree development
+* Yocto BSP development
+* Power management
+* Low-power architecture
+* Energy harvesting
+* Automated testing
+* Hardware/software integration
+* Embedded debugging
+* Power measurement
+
+---
+
+# Future Improvements
+
+```text
+Phase 1
+├── Basic sensors
+├── M4 firmware
+├── Linux application
+└── RPMsg
+
+Phase 2
+├── Low-power states
+├── Wake-up
+├── Power measurement
+└── Energy budgeting
+
+Phase 3
+├── Solar harvesting
+├── Thermal harvesting
+├── Kinetic harvesting
+└── Supercapacitor storage
+
+Phase 4
+├── Industrial communication
+├── Remote monitoring
+├── Data logging
+└── Cloud integration
+
+Phase 5
+├── Custom PCB
+├── Power optimization
+├── Leakage optimization
+└── Production design
+```
+
+---
+
+# Repository Status
+
+| Component                       | Status    |
+| ------------------------------- | --------- |
+| STM32MP157 platform             | 🟢        |
+| Cortex-M4 firmware              | 🟢        |
+| Linux applications              | 🟢        |
+| Linux services                  | 🟢        |
+| RPMsg architecture              | 🟢        |
+| Device Tree                     | 🟢        |
+| Yocto layer                     | 🟢        |
+| Sensor architecture             | 🟢        |
+| Energy harvesting documentation | 🟢        |
+| Low-power architecture          | 🟢        |
+| Automated tests                 | 🟢        |
+| Power measurement               | 🟢        |
+| Production hardware             | 🔵 Future |
+
+---
+
+# Contributing
+
+Please read:
+
+```text
+CONTRIBUTING.md
+```
+
+before submitting changes.
+
+---
+
+# Changelog
+
+Project changes are documented in:
+
+```text
+CHANGELOG.md
+```
+
+---
+
+# License
+
+This project currently uses:
+
+```text
+CLOSED
+```
+
+for the project-specific source components.
+
+Review the licenses of all STMicroelectronics, Linux, Yocto, OpenAMP, CMSIS, and other third-party components separately before redistribution.
+
+---
+
+# Disclaimer
+
+This project is intended for engineering development, experimentation, education, and demonstration.
+
+The STM32MP157 Discovery Kit is a development platform and should not be interpreted as a production ultra-low-power energy-harvesting sensor node.
+
+Actual system-level power consumption depends on:
+
+* Hardware configuration
+* PMIC
+* DDR
+* Sensors
+* Peripheral configuration
+* Clock configuration
+* Software
+* Leakage
+* Board components
+* Measurement conditions
+* Energy-harvesting source
+
+A production sub-microamp design requires dedicated hardware and detailed power-budget validation.
+
+---
+
+# Project Flow — One Page
+
+```text
+                    ENERGY SOURCE
+                         │
+            ┌────────────┼────────────┐
+            │            │            │
+          SOLAR       THERMAL       KINETIC
+            │            │            │
+            └────────────┼────────────┘
+                         ▼
+                 ENERGY HARVESTER
+                         │
+                         ▼
+                    POWER STORAGE
+                         │
+                         ▼
+                    POWER MANAGER
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │ STM32MP157   │
+                  └──────┬───────┘
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+          Cortex-A7             Cortex-M4
+              │                     │
+            Linux                Sensors
+              │                     │
+        ┌─────┼─────┐               │
+        │     │     │               │
+        ▼     ▼     ▼               ▼
+     Power  Sensor RPMsg        Processing
+     App    App                  │
+        │     │     │             │
+        └─────┴─────┼─────────────┘
+                    ▼
+                  RPMsg
+                    │
+                    ▼
+              Data Processing
+                    │
+                    ▼
+               Event Detect
+                    │
+             ┌──────┴──────┐
+             ▼             ▼
+           Event         No Event
+             │             │
+             ▼             ▼
+         Wake A7          Sleep
+             │             │
+             ▼             │
+         Communicate       │
+             │             │
+             └──────┬──────┘
+                    ▼
+                LOW POWER
+                    │
+              RTC / GPIO /
+              SENSOR IRQ
+                    │
+                    ▼
+                   WAKE
+                    │
+                    └──────────────► Repeat
+```
+
+---
+
+# Final Architecture
+
+```text
+                         ┌─────────────────────┐
+                         │  Solar / Thermal /  │
+                         │      Kinetic        │
+                         └──────────┬──────────┘
                                     │
-            ┌───────────────────────┼───────────────────────┐
-            │                       │                       │
-            ▼                       ▼                       ▼
-    ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
-    │  C LANGUAGE   │       │  C++ LANGUAGE │       │   EMBEDDED    │
-    ├───────────────┤       ├───────────────┤       ├───────────────┤
-    │ 1. Pointers   │       │ 1. Move       │       │ 1. Interrupts │
-    │ 2. Memory     │       │ 2. Smart Ptr  │       │ 2. GPIO       │
-    │ 3. Bitwise    │       │ 3. Templates  │       │ 3. Timers     │
-    │ 4. Preprocessor│      │ 4. Lambdas    │       │ 4. Comm       │
-    └───────────────┘       └───────────────┘       └───────────────┘
-            │                       │                       │
-            ▼                       ▼                       ▼
-    ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
-    │  TOPIC MENU   │       │  TOPIC MENU   │       │  TOPIC MENU   │
-    ├───────────────┤       ├───────────────┤       ├───────────────┤
-    │ 1. Run Code   │       │ 1. Run Code   │       │ 1. Run Code   │
-    │ 2. View README│       │ 2. View README│       │ 2. View README│
-    │ 0. Back       │       │ 0. Back       │       │ 0. Back       │
-    └───────────────┘       └───────────────┘       └───────────────┘
-            │                       │                       │
-            ▼                       ▼                       ▼
-    ┌───────────────┐       ┌───────────────┐       ┌───────────────┐
-    │    OUTPUT     │       │    OUTPUT     │       │    OUTPUT     │
-    │  Code runs    │       │  Code runs    │       │  Code runs    │
-    │  Shows:       │       │  Shows:       │       │  Shows:       │
-    │  - Explanation│       │  - Explanation│       │  - Explanation│
-    │  - Code       │       │  - Code       │       │  - Code       │
-    │  - Result     │       │  - Result     │       │  - Result     │
-    └───────────────┘       └───────────────┘       └───────────────┘
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Energy Harvesting   │
+                         │       PMIC          │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Storage / Regulation│
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────┐
+              │              STM32MP157                 │
+              │                                         │
+              │  ┌────────────────┐ ┌────────────────┐ │
+              │  │   Cortex-A7    │ │   Cortex-M4    │ │
+              │  │                │ │                │ │
+              │  │ Linux          │ │ Sensors        │ │
+              │  │ Applications   │ │ Control        │ │
+              │  │ Services       │ │ Processing     │ │
+              │  │ Power Mgmt     │ │ Low Power      │ │
+              │  └───────┬────────┘ └───────┬────────┘ │
+              │          │                  │          │
+              │          └────── RPMsg ─────┘          │
+              └────────────────┬────────────────────────┘
+                               │
+                               ▼
+                      ┌─────────────────┐
+                      │     Sensors     │
+                      │                 │
+                      │ Temperature     │
+                      │ Pressure        │
+                      │ Vibration       │
+                      └────────┬────────┘
+                               │
+                               ▼
+                         Data / Events
+                               │
+                               ▼
+                       Communication
+                               │
+                               ▼
+                         Gateway / Cloud
 ```
 
 ---
 
-##  Complete Working Flow
+## Project Objective
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           USER INTERACTION FLOW                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   START                                                                      │
-│     │                                                                        │
-│     ▼                                                                        │
-│   ┌─────────────────┐                                                        │
-│   │  make menu      │  ← User runs this command                              │
-│   └────────┬────────┘                                                        │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                         MAIN MENU DISPLAYED                          │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │     SYSTEMS STACK: C, C++, EMBEDDED                                 │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │    1. C Language                                                     │   │
-│   │    2. C++ Language                                                   │   │
-│   │    3. Embedded Baremetal                                             │   │
-│   │    4. Exercises                                                      │   │
-│   │    5. Clean                                                          │   │
-│   │    0. Exit                                                           │   │
-│   └────────┬────────────────────────────────────────────────────────────┘   │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────┐                                                        │
-│   │  User selects 1 │  ← C Language                                         │
-│   └────────┬────────┘                                                        │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                         C MENU DISPLAYED                             │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │        C LANGUAGE                                                    │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │    1. Pointers                                                       │   │
-│   │    2. Memory                                                         │   │
-│   │    3. Bitwise                                                        │   │
-│   │    4. Preprocessor                                                   │   │
-│   │    0. Back                                                           │   │
-│   └────────┬────────────────────────────────────────────────────────────┘   │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────┐                                                        │
-│   │ User selects 1  │  ← Pointers                                           │
-│   └────────┬────────┘                                                        │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                      POINTERS MENU DISPLAYED                         │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │        POINTERS - EXPLANATION                                        │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │    A pointer stores a memory address.                               │   │
-│   │    *ptr - Get value at address                                      │   │
-│   │    &var - Get address of variable                                   │   │
-│   │    ptr++ - Move to next element                                     │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │    1. Run Code                                                       │   │
-│   │    2. View README                                                    │   │
-│   │    0. Back                                                           │   │
-│   └────────┬────────────────────────────────────────────────────────────┘   │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────┐                                                        │
-│   │ User selects 1  │  ← Run Code                                           │
-│   └────────┬────────┘                                                        │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                      CODE EXECUTION                                  │   │
-│   │  ═══════════════════════════════════════════                        │   │
-│   │                                                                      │   │
-│   │  1. Compiler (gcc) compiles the .c file                             │   │
-│   │     ↓                                                               │   │
-│   │  2. Binary created in bin/ directory                                │   │
-│   │     ↓                                                               │   │
-│   │  3. Binary executes                                                 │   │
-│   │     ↓                                                               │   │
-│   │  4. Output displayed on screen                                      │   │
-│   │                                                                      │   │
-│   │  OUTPUT:                                                             │   │
-│   │  ========== POINTER ARITHMETIC DEMO ==========                      │   │
-│   │  Array values: 10 20 30 40 50                                       │   │
-│   │  *ptr = 10                                                          │   │
-│   │  After ptr++: 20                                                    │   │
-│   │  After ptr+=2: 40                                                   │   │
-│   │  ========== COMPLETE ==========                                     │   │
-│   │                                                                      │   │
-│   └────────┬────────────────────────────────────────────────────────────┘   │
-│            │                                                                 │
-│            ▼                                                                 │
-│   ┌─────────────────┐                                                        │
-│   │  Press Enter    │  ← Returns to Pointers Menu                           │
-│   └─────────────────┘                                                        │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+The final objective is to develop an **energy-aware STM32MP157 embedded platform** capable of:
+
+```text
+Harvest Energy
+      ↓
+Measure Environment
+      ↓
+Process Data
+      ↓
+Detect Events
+      ↓
+Communicate Only When Required
+      ↓
+Enter Low Power
+      ↓
+Wake on Event
+      ↓
+Repeat
 ```
 
----
-
-##  Topics Covered in Detail
-
-### C Language
-
-| Topic | README | Code | Key Concepts |
-|-------|--------|------|--------------|
-| **Pointers** | ✅ | ✅ | Pointer arithmetic, function pointers, double pointers, NULL pointers |
-| **Memory** | ✅ | ✅ | Stack, heap, static storage, memory layout |
-| **Bitwise** | ✅ | ✅ | AND/OR/XOR/NOT, shifts, bit manipulation, bit fields |
-| **Preprocessor** | ✅ | ✅ | Macros, conditional compilation, X-macros |
-
-### C++ Language
-
-| Topic | README | Code | Key Concepts |
-|-------|--------|------|--------------|
-| **Move Semantics** | ✅ | ✅ | Lvalue/Rvalue, move constructor, std::move |
-| **Smart Pointers** | ✅ | ✅ | unique_ptr, shared_ptr, weak_ptr |
-| **Templates** | ✅ | ✅ | Function templates, class templates, specialization |
-| **Lambdas** | ✅ | ✅ | Capture, mutable, generic lambdas |
-
-### Embedded Baremetal
-
-| Topic | README | Code | Key Concepts |
-|-------|--------|------|--------------|
-| **Interrupts** | ✅ | ✅ | Vector table, ISR, NVIC, priorities |
-| **GPIO** | ✅ | ✅ | Registers (MODER, ODR, BSRR), push-pull, open-drain |
-| **Timers** | ✅ | ✅ | Prescaler, auto-reload, PWM, watchdog |
-| **Communication** | ✅ | ✅ | UART, SPI, I2C, baud rate, modes |
-
-### Exercises
-
-| Challenge | Topic | Solution | Difficulty |
-|-----------|-------|----------|------------|
-| #1: Pointer Swap | Pointers | ✅ | ⭐ Easy |
-| #2: Count Set Bits | Bitwise | ✅ | ⭐⭐ Medium |
-| #3: String Move | Move Semantics | ✅ | ⭐⭐ Medium |
-| #4: LED Blink | Embedded | ✅ | ⭐⭐⭐ Hard |
-
----
-
-##  Commands Reference
-
-| Command | Description |
-|---------|-------------|
-| `make menu` | Start interactive menu |
-| `make c_menu` | Go directly to C menu |
-| `make cpp_menu` | Go directly to C++ menu |
-| `make embedded_menu` | Go directly to Embedded menu |
-| `make exercises_menu` | Go directly to Exercises |
-| `make clean` | Remove all compiled binaries |
-| `make all` | Build all examples |
-
-### Direct Code Execution
-
-```bash
-# Run specific topics without menu
-make run_ptr_arith      # Pointers demo
-make run_memory         # Memory demo
-make run_bitwise        # Bitwise demo
-make run_move           # Move semantics demo
-make run_smart          # Smart pointers demo
-make run_interrupts     # Interrupts demo
-make run_gpio           # GPIO demo
-
-# Run challenges
-make run_challenge1     # Pointers challenge
-make run_challenge2     # Bitwise challenge
-make run_challenge3     # Move semantics challenge
-make run_challenge4     # GPIO challenge
-```
-
----
-
-##  Learning Path Recommendation
+This architecture provides the foundation for developing a production-oriented **solar, thermal, or kinetic energy-harvesting industrial sensor node** using the STM32MP157.
 
 ```
-Week 1-2: C Language
-    ├── Day 1-2: Pointers
-    ├── Day 3-4: Memory Management
-    ├── Day 5-6: Bitwise Operations
-    └── Day 7: Preprocessor
-
-Week 3-4: C++ Language
-    ├── Day 1-2: Move Semantics
-    ├── Day 3-4: Smart Pointers
-    ├── Day 5: Templates
-    └── Day 6-7: Lambdas
-
-Week 5-6: Embedded Baremetal
-    ├── Day 1-2: Interrupts
-    ├── Day 3-4: GPIO
-    ├── Day 5: Timers
-    └── Day 6-7: Communication Protocols
-
-Week 7: Exercises & Challenges
-    ├── Complete all 4 challenges
-    ├── Review solutions
-    └── Build your own projects
-```
-
----
-
-##  Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
-##  License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-##  Acknowledgments
-
-- ARM Cortex-M Reference Manuals
-- C++ Standard Committee Papers
-- GNU Compiler Collection Documentation
-- STM32 Reference Manuals
-
----
-
-## ⭐ Star This Repository
-
-If this repository helps you learn systems programming, please give it a star! ⭐
-
----
-
-##  Repository Stats
-
-```
-═══════════════════════════════════════════════════════════════
-   Topics: 4 Languages | 12 Modules | 4 Challenges
-   Code: 12 C Files | 8 C++ Files | 2000+ Lines
-   Documentation: 12 README Files | 200+ Pages Equivalent
-═══════════════════════════════════════════════════════════════
-```
-
----
-
-**Happy Coding!** 
 ```
