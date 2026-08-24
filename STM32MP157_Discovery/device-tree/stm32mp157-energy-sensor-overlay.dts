@@ -1,0 +1,82 @@
+/*
+ * STM32MP157 Energy Sensor Device Tree Overlay
+ *
+ * Optional hardware configuration.
+ */
+
+/dts-v1/;
+
+/plugin/;
+
+#include "stm32mp157-energy-sensor-pinctrl.dtsi"
+
+/ {
+    /*
+     * Optional energy monitor.
+     *
+     * Replace with the actual PMIC/energy-monitor device.
+     */
+
+    fragment@0 {
+        target = <&i2c1>;
+
+        __overlay__ {
+            status = "okay";
+
+            /*
+             * Example placeholder.
+             *
+             * Replace compatible and address with the actual device.
+             *
+             * energy_monitor@40 {
+             *     compatible = "vendor,energy-monitor";
+             *     reg = <0x40>;
+             * };
+             */
+        };
+    };
+
+    /*
+     * Optional sensor.
+     */
+
+    fragment@1 {
+        target = <&spi1>;
+
+        __overlay__ {
+            status = "okay";
+
+            /*
+             * Add actual sensor here.
+             *
+             * Example:
+             *
+             * sensor@0 {
+             *     compatible = "vendor,industrial-sensor";
+             *     reg = <0>;
+             *     spi-max-frequency = <1000000>;
+             * };
+             */
+        };
+    };
+
+    /*
+     * Optional wake-up GPIO.
+     */
+
+    fragment@2 {
+        target-path = "/";
+
+        __overlay__ {
+
+            sensor-wakeup {
+                compatible = "gpio-keys";
+
+                sensor-event {
+                    label = "energy-sensor-event";
+                    wakeup-source;
+                };
+            };
+        };
+    };
+};

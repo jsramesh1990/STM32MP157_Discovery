@@ -1,0 +1,65 @@
+/*
+ * STM32MP157 Energy Sensor Pin Control
+ *
+ * IMPORTANT:
+ * The GPIO/pin numbers below are project placeholders.
+ * They must be replaced with the actual STM32MP157 Discovery Kit
+ * pin assignments.
+ */
+
+&pinctrl {
+    /*
+     * I2C sensor pins
+     */
+
+    i2c1_sensor_pins: i2c1-sensor-0 {
+        pins {
+            pinmux = <STM32_PINMUX('B', 6, AF4)>,
+                     <STM32_PINMUX('B', 7, AF4)>;
+
+            bias-disable;
+            drive-open-drain;
+            slew-rate = <0>;
+        };
+    };
+
+    /*
+     * SPI sensor pins
+     */
+
+    spi1_sensor_pins: spi1-sensor-0 {
+        pins {
+            pinmux = <STM32_PINMUX('A', 5, AF5)>,
+                     <STM32_PINMUX('A', 6, AF5)>,
+                     <STM32_PINMUX('A', 7, AF5)>;
+
+            bias-disable;
+            drive-push-pull;
+            slew-rate = <0>;
+        };
+    };
+
+    /*
+     * Sensor interrupt.
+     */
+
+    sensor_interrupt_pins: sensor-interrupt-0 {
+        pins {
+            pinmux = <STM32_PINMUX('A', 1, GPIO)>;
+
+            bias-pull-down;
+        };
+    };
+
+    /*
+     * Sensor power enable.
+     */
+
+    sensor_power_pins: sensor-power-0 {
+        pins {
+            pinmux = <STM32_PINMUX('A', 0, GPIO)>;
+
+            bias-disable;
+        };
+    };
+};

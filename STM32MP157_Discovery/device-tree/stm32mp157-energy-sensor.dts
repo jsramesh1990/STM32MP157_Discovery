@@ -1,0 +1,162 @@
+
+---
+
+### `device-tree/stm32mp157-energy-sensor.dts`
+
+```dts
+/*
+ * STM32MP157 Energy-Aware Industrial Sensor Node
+ *
+ * Main Device Tree
+ */
+
+#include "stm32mp157-energy-sensor-pinctrl.dtsi"
+
+/ {
+    model = "STM32MP157 Energy-Aware Industrial Sensor Node";
+    compatible = "st,stm32mp157-energy-sensor";
+
+    aliases {
+        sensor-i2c = &i2c1;
+        sensor-spi = &spi1;
+    };
+
+    chosen {
+        bootargs = "console=ttySTM0,115200";
+    };
+
+    /*
+     * Example GPIO-controlled sensor power.
+     *
+     * Replace GPIO controller/pin with the actual board connection.
+     */
+    sensor_power: sensor-power {
+        compatible = "regulator-fixed";
+        regulator-name = "sensor-power";
+        regulator-boot-on;
+        enable-active-high;
+
+        /*
+         * Replace with actual GPIO.
+         */
+        gpio = <&gpioa 0 GPIO_ACTIVE_HIGH>;
+    };
+
+    /*
+     * Example sensor interrupt.
+     *
+     * The actual interrupt GPIO must match the hardware.
+     */
+    sensor_wakeup {
+        compatible = "gpio-keys";
+
+        sensor_event {
+            label = "sensor-event";
+            gpios = <&gpioa 1 GPIO_ACTIVE_HIGH>;
+            linux,input-type = <1>;
+            linux,code = <1>;
+            wakeup-source;
+        };
+    };
+
+    /*
+     * Cortex-M4 reserved memory.
+     *
+     * IMPORTANT:
+     * Addresses/sizes must match the actual STM32MP1 BSP configuration.
+     */
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        m4_memory: m4@10000000 {
+            reg = <0x10000000 0x00040000>;
+            no-map;
+        };
+
+        m4_rpmsg_vring0: vring0@10040000 {
+            reg = <0x10040000 0x00004000>;
+            no-map;
+        };
+
+        m4_rpmsg_vring1: vring1@10044000 {
+            reg = <0x10044000 0x00004000>;
+            no-map;
+        };
+
+        m4_rpmsg_buffer: rpmsg-buffer@10048000 {
+            reg = <0x10048000 0x00008000>;
+            no-map;
+        };
+    };
+};
+
+/*
+ * Cortex-M4 remote processor.
+ *
+ * The exact node name/properties depend on the STM32MP1 BSP version.
+ */
+
+&m4_rproc {
+    memory-region =
+        <&m4_memory>,
+        <&m4_rpmsg_vring0>,
+        <&m4_rpmsg_vring1>,
+        <&m4_rpmsg_buffer>;
+
+    status = "okay";
+};
+
+/*
+ * I2C sensor interface.
+ */
+
+&i2c1 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&i2c1_sensor_pins>;
+
+    status = "okay";
+
+    /*
+     * Add the actual sensor node here.
+     *
+     * Example:
+     *
+     * sensor@48 {
+     *     compatible = "vendor,sensor";
+     *     reg = <0x48>;
+     * };
+     */
+};
+
+/*
+ * SPI sensor interface.
+ */
+
+&spi1 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&spi1_sensor_pins>;
+
+    status = "okay";
+
+    /*
+     * Add actual SPI sensor node here.
+     */
+};
+
+/*
+ * UART used for M4/Linux debugging.
+ */
+
+&usart3 {
+    status = "okay";
+};
+
+/*
+ * RTC can be used as a periodic wake-up source.
+ */
+
+&rtc {
+    status = "okay";
+};

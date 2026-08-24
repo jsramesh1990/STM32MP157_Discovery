@@ -1,0 +1,130 @@
+STM32MP157_Discovery/
+STM32MP157-Energy-Aware-Sensor/
+│
+├── README.md
+├── LICENSE
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+├── .gitignore
+│
+├── docs/
+│   ├── 01-project-overview.md
+│   ├── 02-hardware-architecture.md
+│   ├── 03-software-architecture.md
+│   ├── 04-boot-flow.md
+│   ├── 05-low-power-architecture.md
+│   ├── 06-energy-harvesting.md
+│   ├── 07-cortex-a7.md
+│   ├── 08-cortex-m4.md
+│   ├── 09-rpmsg-openamp.md
+│   ├── 10-device-tree.md
+│   ├── 11-sensor-framework.md
+│   ├── 12-power-measurement.md
+│   ├── 13-wake-up-mechanism.md
+│   ├── 14-debugging.md
+│   ├── 15-testing.md
+│   └── 16-production-design.md
+│
+├── hardware/
+│   ├── README.md
+│   ├── stm32mp157-dk/
+│   │   ├── README.md
+│   │   ├── pinout.md
+│   │   └── peripherals.md
+│   │
+│   ├── sensors/
+│   │   ├── temperature/
+│   │   ├── vibration/
+│   │   └── pressure/
+│   │
+│   └── energy-harvesting/
+│       ├── solar.md
+│       ├── thermal.md
+│       └── kinetic.md
+│
+├── yocto/
+│   ├── README.md
+│   ├── setup.sh
+│   ├── build.sh
+│   ├── clean.sh
+│   ├── deploy.sh
+│   ├── flash_sd.sh
+│   │
+│   └── meta-energy-sensor/
+│       ├── conf/
+│       │   └── layer.conf
+│       │
+│       ├── recipes-apps/
+│       │   └── energy-sensor/
+│       │       ├── files/
+│       │       │   ├── energy-sensor.c
+│       │       │   └── energy-sensor.service
+│       │       └── energy-sensor.bb
+│       │
+│       ├── recipes-kernel/
+│       │   └── linux/
+│       │       └── linux-stm32mp/
+│       │
+│       └── recipes-firmware/
+│           └── m4-firmware/
+│               ├── files/
+│               └── m4-firmware.bb
+│
+├── cortex-m4/
+│   ├── README.md
+│   ├── Core/
+│   │   ├── Inc/
+│   │   └── Src/
+│   │
+│   ├── Drivers/
+│   ├── Middlewares/
+│   │
+│   ├── STM32CubeIDE/
+│   ├── Makefile
+│   └── linker/
+│
+├── linux/
+│   ├── README.md
+│   ├── apps/
+│   │   ├── sensor-manager/
+│   │   ├── power-manager/
+│   │   ├── rpmsg-test/
+│   │   └── sensor-monitor/
+│   │
+│   ├── scripts/
+│   │   ├── suspend_test.sh
+│   │   ├── wakeup_test.sh
+│   │   ├── power_test.sh
+│   │   └── sensor_test.sh
+│   │
+│   └── services/
+│
+├── device-tree/
+│   ├── README.md
+│   ├── stm32mp157-energy-sensor.dts
+│   ├── stm32mp157-energy-sensor-overlay.dts
+│   └── stm32mp157-energy-sensor-pinctrl.dtsi
+│
+├── tests/
+│   ├── boot/
+│   ├── sensor/
+│   ├── rpmsg/
+│   ├── low-power/
+│   ├── wakeup/
+│   └── energy/
+│
+├── tools/
+│   ├── power-measurement/
+│   ├── serial-monitor/
+│   └── log-parser/
+│
+└── scripts/
+    ├── build_all.sh
+    ├── clean_all.sh
+    ├── deploy_all.sh
+    ├── run_tests.sh
+    └── collect_logs.sh
+
+
+
+
