@@ -1,0 +1,565 @@
+# ============================================================
+# SYSTEMS STACK: C, C++, EMBEDDED
+# ============================================================
+
+CC = gcc
+CXX = g++
+CFLAGS = -Wall -Wextra -std=c11 -O2
+CXXFLAGS = -Wall -Wextra -std=c++20 -O2
+
+BIN_DIR = bin
+$(shell mkdir -p $(BIN_DIR))
+
+.PHONY: all clean
+
+all: menu
+
+# ============================================================
+# MAIN MENU
+# ============================================================
+
+menu:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   SYSTEMS STACK: C, C++, EMBEDDED"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  1. C Language"
+	@echo "  2. C++ Language"
+	@echo "  3. Embedded Baremetal"
+	@echo "  4. Exercises"
+	@echo "  5. Clean"
+	@echo "  0. Exit"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) c_menu ;; \
+		2) $(MAKE) cpp_menu ;; \
+		3) $(MAKE) embedded_menu ;; \
+		4) $(MAKE) exercises_menu ;; \
+		5) $(MAKE) clean ;; \
+		0) exit 0 ;; \
+		*) $(MAKE) menu ;; \
+	esac
+
+# ============================================================
+# C LANGUAGE MENU
+# ============================================================
+
+c_menu:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   C LANGUAGE"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  1. Pointers"
+	@echo "  2. Memory"
+	@echo "  3. Bitwise"
+	@echo "  4. Preprocessor"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) c_pointers ;; \
+		2) $(MAKE) c_memory ;; \
+		3) $(MAKE) c_bitwise ;; \
+		4) $(MAKE) c_preprocessor ;; \
+		0) $(MAKE) menu ;; \
+	esac
+
+# C - POINTERS
+c_pointers:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   POINTERS - EXPLANATION"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  A pointer stores a memory address."
+	@echo ""
+	@echo "  *ptr  - Get value at address"
+	@echo "  &var  - Get address of variable"
+	@echo "  ptr++ - Move to next element"
+	@echo ""
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  1. Pointer Arithmetic"
+	@echo "  2. Function Pointers"
+	@echo "  3. Double Pointers"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_ptr_arith ;; \
+		2) $(MAKE) run_ptr_func ;; \
+		3) $(MAKE) run_ptr_double ;; \
+		0) $(MAKE) c_menu ;; \
+	esac
+
+run_ptr_arith:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   POINTER ARITHMETIC"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "CODE:"
+	@echo "  int arr[5] = {10,20,30,40,50};"
+	@echo "  int *ptr = arr;"
+	@echo "  printf(\"*ptr = %%d\\n\", *ptr);"
+	@echo "  ptr++;"
+	@echo "  printf(\"After ++: %%d\\n\", *ptr);"
+	@echo ""
+	@echo "OUTPUT:"
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/ptr_arith 01-c-language/pointers/pointer_arithmetic.c && ./$(BIN_DIR)/ptr_arith
+	@echo ""
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_pointers
+
+run_ptr_func:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   FUNCTION POINTERS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "CODE:"
+	@echo "  int add(int a,int b){return a+b;}"
+	@echo "  int (*op)(int,int)=add;"
+	@echo "  printf(\"5+3=%%d\\n\",op(5,3));"
+	@echo ""
+	@echo "OUTPUT:"
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/ptr_func 01-c-language/pointers/function_pointers.c && ./$(BIN_DIR)/ptr_func
+	@echo ""
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_pointers
+
+run_ptr_double:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   DOUBLE POINTERS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "CODE:"
+	@echo "  int x=42; int *p=&x; int **pp=&p;"
+	@echo "  printf(\"**pp=%%d\\n\",**pp);"
+	@echo ""
+	@echo "OUTPUT:"
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/ptr_double 01-c-language/pointers/double_pointers.c && ./$(BIN_DIR)/ptr_double
+	@echo ""
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_pointers
+
+# C - MEMORY
+c_memory:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   MEMORY MANAGEMENT"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  ┌──────────┐ HIGH"
+	@echo "  │  STACK   │ - Local vars"
+	@echo "  ├──────────┤"
+	@echo "  │   HEAP   │ - malloc()"
+	@echo "  ├──────────┤"
+	@echo "  │   BSS    │ - Uninit globals"
+	@echo "  ├──────────┤"
+	@echo "  │  DATA    │ - Init globals"
+	@echo "  ├──────────┤"
+	@echo "  │  TEXT    │ - Code"
+	@echo "  └──────────┘ LOW"
+	@echo ""
+	@echo "  1. Stack vs Heap"
+	@echo "  2. Static Storage"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_mem_stack ;; \
+		2) $(MAKE) run_mem_static ;; \
+		0) $(MAKE) c_menu ;; \
+	esac
+
+run_mem_stack:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/mem_stack 01-c-language/memory/stack_heap.c && ./$(BIN_DIR)/mem_stack
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_memory
+
+run_mem_static:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/mem_static 01-c-language/memory/static_storage.c && ./$(BIN_DIR)/mem_static
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_memory
+
+# C - BITWISE
+c_bitwise:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   BITWISE OPERATIONS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  &  AND    - Clear bits"
+	@echo "  |  OR     - Set bits"
+	@echo "  ^  XOR    - Toggle bits"
+	@echo "  ~  NOT    - Invert"
+	@echo "  << LEFT   - Shift left"
+	@echo "  >> RIGHT  - Shift right"
+	@echo ""
+	@echo "  Set bit:   reg |= (1<<n)"
+	@echo "  Clear bit: reg &= ~(1<<n)"
+	@echo "  Toggle:    reg ^= (1<<n)"
+	@echo ""
+	@echo "  1. Basic Operations"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_bit_ops ;; \
+		0) $(MAKE) c_menu ;; \
+	esac
+
+run_bit_ops:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/bit_ops 01-c-language/bitwise/operations.c && ./$(BIN_DIR)/bit_ops
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_bitwise
+
+# C - PREPROCESSOR
+c_preprocessor:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   PREPROCESSOR"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  Runs BEFORE compilation"
+	@echo ""
+	@echo "  #include  - File inclusion"
+	@echo "  #define   - Macros"
+	@echo "  #ifdef    - Conditional"
+	@echo ""
+	@echo "  1. Macros"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_macros ;; \
+		0) $(MAKE) c_menu ;; \
+	esac
+
+run_macros:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/macros 01-c-language/preprocessor/macros.c && ./$(BIN_DIR)/macros
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) c_preprocessor
+
+# ============================================================
+# C++ LANGUAGE MENU
+# ============================================================
+
+cpp_menu:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   C++ LANGUAGE"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  1. Move Semantics"
+	@echo "  2. Smart Pointers"
+	@echo "  3. Templates"
+	@echo "  4. Lambdas"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) cpp_move ;; \
+		2) $(MAKE) cpp_smart ;; \
+		3) $(MAKE) cpp_templates ;; \
+		4) $(MAKE) cpp_lambdas ;; \
+		0) $(MAKE) menu ;; \
+	esac
+
+cpp_move:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   MOVE SEMANTICS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  Move transfers ownership (cheap)"
+	@echo "  Copy duplicates data (expensive)"
+	@echo ""
+	@echo "  && - Rvalue reference"
+	@echo "  std::move() - Convert to rvalue"
+	@echo ""
+	@echo "  1. Rvalue References"
+	@echo "  2. Move Constructor"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_move_ref ;; \
+		2) $(MAKE) run_move_ctor ;; \
+		0) $(MAKE) cpp_menu ;; \
+	esac
+
+run_move_ref:
+	@clear
+	@$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/move_ref 02-cpp-language/move-semantics/rvalue_references.cpp && ./$(BIN_DIR)/move_ref
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) cpp_move
+
+run_move_ctor:
+	@clear
+	@$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/move_ctor 02-cpp-language/move-semantics/move_constructor.cpp && ./$(BIN_DIR)/move_ctor
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) cpp_move
+
+cpp_smart:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   SMART POINTERS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  unique_ptr  - Exclusive ownership"
+	@echo "  shared_ptr  - Shared (reference counted)"
+	@echo "  weak_ptr    - Non-owning observer"
+	@echo ""
+	@echo "  1. unique_ptr"
+	@echo "  2. shared_ptr"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_unique ;; \
+		2) $(MAKE) run_shared ;; \
+		0) $(MAKE) cpp_menu ;; \
+	esac
+
+run_unique:
+	@clear
+	@$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/unique 02-cpp-language/smart-pointers/unique_ptr.cpp && ./$(BIN_DIR)/unique
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) cpp_smart
+
+run_shared:
+	@clear
+	@$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/shared 02-cpp-language/smart-pointers/shared_ptr.cpp && ./$(BIN_DIR)/shared
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) cpp_smart
+
+cpp_templates:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   TEMPLATES"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  Code that works with ANY type"
+	@echo ""
+	@echo "  template<typename T>"
+	@echo "  T max(T a, T b) { return (a>b)?a:b; }"
+	@echo ""
+	@read -p "  Run example? (1-yes/0-back): " opt; \
+	case $$opt in \
+		1) $(MAKE) run_templates ;; \
+		0) $(MAKE) cpp_menu ;; \
+	esac
+
+run_templates:
+	@clear
+	@$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/templates 02-cpp-language/templates/template_specialization.cpp && ./$(BIN_DIR)/templates
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) cpp_templates
+
+cpp_lambdas:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   LAMBDAS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  [capture](params) -> ret { body }"
+	@echo ""
+	@echo "  auto add = [](int a,int b){return a+b;};"
+	@echo ""
+	@read -p "  Run example? (1-yes/0-back): " opt; \
+	case $$opt in \
+		1) $(MAKE) run_lambdas ;; \
+		0) $(MAKE) cpp_menu ;; \
+	esac
+
+run_lambdas:
+	@clear
+	@$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/lambdas 02-cpp-language/lambdas/basic_lambdas.cpp && ./$(BIN_DIR)/lambdas
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) cpp_lambdas
+
+# ============================================================
+# EMBEDDED MENU
+# ============================================================
+
+embedded_menu:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   EMBEDDED "
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  1. Interrupts"
+	@echo "  2. GPIO"
+	@echo "  3. Timers"
+	@echo "  4. Communication"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) embedded_interrupts ;; \
+		2) $(MAKE) embedded_gpio ;; \
+		3) $(MAKE) embedded_timers ;; \
+		4) $(MAKE) embedded_comms ;; \
+		0) $(MAKE) menu ;; \
+	esac
+
+embedded_interrupts:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   INTERRUPTS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  Hardware signals that pause CPU"
+	@echo ""
+	@echo "  • Vector Table - List of ISR addresses"
+	@echo "  • ISR - Interrupt Service Routine"
+	@echo "  • NVIC - Interrupt controller"
+	@echo ""
+	@echo "  1. Vector Table"
+	@echo "  2. ISR Example"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_vector ;; \
+		2) $(MAKE) run_isr ;; \
+		0) $(MAKE) embedded_menu ;; \
+	esac
+
+run_vector:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/vector 03-embedded/interrupts/vector_table.c && ./$(BIN_DIR)/vector
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) embedded_interrupts
+
+run_isr:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/isr 03-embedded/interrupts/isr_example.c && ./$(BIN_DIR)/isr
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) embedded_interrupts
+
+embedded_gpio:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   GPIO"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  General Purpose Input/Output"
+	@echo ""
+	@echo "  Registers:"
+	@echo "  • MODER  - Mode (Input/Output)"
+	@echo "  • ODR    - Output Data"
+	@echo "  • IDR    - Input Data"
+	@echo ""
+	@echo "  1. GPIO Register Control"
+	@echo "  2. LED Blink"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) $(MAKE) run_gpio_reg ;; \
+		2) $(MAKE) run_led ;; \
+		0) $(MAKE) embedded_menu ;; \
+	esac
+
+run_gpio_reg:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/gpio_reg 03-embedded/gpio/gpio_register.c && ./$(BIN_DIR)/gpio_reg
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) embedded_gpio
+
+run_led:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/led 03-embedded/gpio/led_blink.c && ./$(BIN_DIR)/led
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) embedded_gpio
+
+embedded_timers:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   TIMERS"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  • SysTick   - System tick"
+	@echo "  • Watchdog  - Reset if not fed"
+	@echo "  • PWM       - Pulse width modulation"
+	@echo ""
+	@read -p "  Run SysTick example? (1-yes/0-back): " opt; \
+	case $$opt in \
+		1) $(MAKE) run_systick ;; \
+		0) $(MAKE) embedded_menu ;; \
+	esac
+
+run_systick:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/systick 03-embedded/timers/systick_delay.c && ./$(BIN_DIR)/systick
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) embedded_timers
+
+embedded_comms:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   COMMUNICATION"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  • UART - Asynchronous serial"
+	@echo "  • SPI  - Synchronous, 4-wire"
+	@echo "  • I2C  - 2-wire, multi-device"
+	@echo ""
+	@read -p "  Run UART example? (1-yes/0-back): " opt; \
+	case $$opt in \
+		1) $(MAKE) run_uart ;; \
+		0) $(MAKE) embedded_menu ;; \
+	esac
+
+run_uart:
+	@clear
+	@$(CC) $(CFLAGS) -o $(BIN_DIR)/uart 03-embedded/communication/uart_sim.c && ./$(BIN_DIR)/uart
+	@read -p "  Press Enter..." dummy
+	@$(MAKE) embedded_comms
+
+# ============================================================
+# EXERCISES
+# ============================================================
+
+exercises_menu:
+	@clear
+	@echo "═══════════════════════════════════════════"
+	@echo "   EXERCISES"
+	@echo "═══════════════════════════════════════════"
+	@echo ""
+	@echo "  1. Pointers Challenge"
+	@echo "  2. Bitwise Challenge"
+	@echo "  3. Move Semantics Challenge"
+	@echo "  4. GPIO Challenge"
+	@echo "  0. Back"
+	@echo ""
+	@read -p "  Select: " opt; \
+	case $$opt in \
+		1) cat exercises/challenges/challenge_01_pointers.md 2>/dev/null || echo "Challenge file not found"; read -p "  Press Enter..." dummy; $(MAKE) exercises_menu ;; \
+		2) cat exercises/challenges/challenge_02_bitwise.md 2>/dev/null || echo "Challenge file not found"; read -p "  Press Enter..." dummy; $(MAKE) exercises_menu ;; \
+		3) cat exercises/challenges/challenge_03_move_semantics.md 2>/dev/null || echo "Challenge file not found"; read -p "  Press Enter..." dummy; $(MAKE) exercises_menu ;; \
+		4) cat exercises/challenges/challenge_04_gpio.md 2>/dev/null || echo "Challenge file not found"; read -p "  Press Enter..." dummy; $(MAKE) exercises_menu ;; \
+		0) $(MAKE) menu ;; \
+	esac
+
+# ============================================================
+# CLEAN
+# ============================================================
+
+clean:
+	rm -rf $(BIN_DIR)
+	mkdir -p $(BIN_DIR)
+	@echo "  Cleaned!"
+	@sleep 1
+	@$(MAKE) menu

@@ -1,0 +1,52 @@
+Systems_Stack_C-CPP-Embedded/
+│
+├── README.md                          # Main landing page
+├── Makefile                           # Interactive menu
+│
+├── 01-c-language/
+│   ├── pointers/
+│   │   ├── README.md                  # Theory + diagrams + procedure
+│   │   └── pointer_arithmetic.c       # All pointer concepts in one file
+│   ├── memory/
+│   │   ├── README.md
+│   │   └── memory.c                   # All memory concepts in one file
+│   ├── bitwise/
+│   │   ├── README.md
+│   │   └── bitwise.c                  # All bitwise concepts in one file
+│   └── preprocessor/
+│       ├── README.md
+│       └── preprocessor.c             # All preprocessor concepts in one file
+│
+├── 02-cpp-language/
+│   ├── move-semantics/
+│   │   ├── README.md
+│   │   └── move_semantics.cpp
+│   ├── smart-pointers/
+│   │   ├── README.md
+│   │   └── smart_pointers.cpp
+│   ├── templates/
+│   │   ├── README.md
+│   │   └── templates.cpp
+│   └── lambdas/
+│       ├── README.md
+│       └── lambdas.cpp
+│
+├── 03-embedded-baremetal/
+│   ├── interrupts/
+│   │   ├── README.md
+│   │   └── interrupts.c
+│   ├── gpio/
+│   │   ├── README.md
+│   │   └── gpio.c
+│   ├── timers/
+│   │   ├── README.md
+│   │   └── timers.c
+│   └── communication/
+│       ├── README.md
+│       └── communication.c
+│
+├── exercises/
+│   ├── challenges/
+│   └── solutions/
+│
+└── bin/

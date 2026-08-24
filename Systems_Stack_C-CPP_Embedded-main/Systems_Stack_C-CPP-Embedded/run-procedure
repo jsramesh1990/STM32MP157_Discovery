@@ -1,0 +1,17 @@
+# Run the main menu
+make menu
+
+# Or run specific sections directly
+make c_menu
+make cpp_menu
+make embedded_menu
+make exercises_menu
+
+# Run specific challenges directly
+make run_challenge1
+make run_challenge2
+make run_challenge3
+make run_challenge4
+
+# Clean all binaries
+make clean
