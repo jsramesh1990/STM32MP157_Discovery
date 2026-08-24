@@ -1,5 +1,5 @@
 
-# STM32MP157 Energy-Harvesting Sensor Platform
+# STM32MP157_Discovery
 
 [![Platform](https://img.shields.io/badge/Platform-STM32MP157-blue)](https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html)
 [![Board](https://img.shields.io/badge/Board-STM32MP157%20Discovery-green)](https://www.st.com/en/evaluation-tools/stm32mp157c-dk2.html)
